@@ -2979,19 +2979,7 @@
 
         <div class="scanline-overlay"></div>
 
-        
-<script>
-// Fallback to prevent not a function errors if main module fails
-window.toggleFullScreen = window.toggleFullScreen || function() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(function(){});
-    } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-    }
-};
-</script>
-
-    <script src="./audio.js"></script>
+        <script src="./audio.js"></script>
     <script src="./tactical-solver.js"></script>
     <script type="module" src="./script.js"></script>
 

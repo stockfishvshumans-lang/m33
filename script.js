@@ -16,9 +16,9 @@ const firebaseConfig = {
   appId: "1:417197691259:web:599483e073e9756c16edde",
   measurementId: "G-7FR5LM7GMY"
 };
+// FIX: Single safe Firebase init to prevent duplicate-app crash
+let app; try { app = getApp(); } catch { app = initializeApp(firebaseConfig); }
 
-
-const app = initializeApp(firebaseConfig);
 
 
 // 1. INITIATE CALL (WITH BROWSER SECURITY CHECK & TIMEOUT)
@@ -131,8 +131,7 @@ window.toggleFullScreen = function() {
 
 let db, auth;
 try {
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
+        db = getFirestore(app);
     auth = getAuth(app);
 } catch(e) { console.error("Firebase Error:", e); }
 
@@ -5032,6 +5031,8 @@ window.adminForceStop = async function() {
 window.lastSentData = { score: -1, acc: -1 };
 
 window.reportProgress = async function(isFinal = false) {
+    window._lastReportTime = window._lastReportTime || 0; const now = Date.now(); if(!isFinal && now - window._lastReportTime < 5000) return; window._lastReportTime = now;
+
     if (state.gameMode !== 'classroom' || !currentRoomId) return;
     
     let targetId = window.myDocId || myDocId || (currentUser ? currentUser.uid : myName);
@@ -7011,6 +7012,8 @@ window.renderShopGrid = function() {
 
 // 6. BUY FUNCTION (FIXED: Auto-Calculates Stats & Syncs UI)
 window.buyItem = async function(itemId, type, priceOverride) {
+    try { if(state.owned && state.owned.includes(itemId)) { if(window.Sound) window.Sound.error(); alert('Already owned!'); return; } if(currentUser && currentUser.ownedItems && currentUser.ownedItems.includes(itemId)) { if(window.Sound) window.Sound.error(); alert('Already owned!'); return; } } catch(e){}
+
     let price = 0;
     let itemRef = null;
 

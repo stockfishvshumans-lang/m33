@@ -14997,3 +14997,46 @@ body.dashboard-active #teacher-dashboard:not(.hidden) {
     z-index: 99999 !important;
     pointer-events: auto !important;
 }
+
+
+
+/* === V13 CRASH FIX: HOLOGRAM CLICKABLE OVERRIDE - Must be at very end === */
+#game-wrapper {
+    perspective: none !important;
+    transform-style: flat !important;
+    overflow: visible !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 10 !important;
+}
+#ui-layer {
+    pointer-events: none !important;
+    z-index: 50 !important;
+}
+#hud-top, #hud-bottom, .command-console, .console-wing, .console-core, #side-feed, #virtual-numpad, #boss-hud, #input-container, #comms-wrapper, #jessbot-wrapper, #nexus-ai-wrapper {
+    pointer-events: auto !important;
+    z-index: 100 !important;
+    position: relative !important;
+}
+.tactical-btn, .trigger-btn, .num-btn, #player-input, .icon-btn, .wing-btn, .core-btn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    z-index: 150 !important;
+    position: relative !important;
+}
+#gameCanvas, #bgCanvas {
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+#start-countdown.hidden, #curtain-countdown.hidden, #class-curtain.hidden, #glitch-overlay {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+.modal {
+    z-index: 99999 !important;
+    pointer-events: auto !important;
+}
