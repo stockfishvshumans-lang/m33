@@ -15040,3 +15040,240 @@ body.dashboard-active #teacher-dashboard:not(.hidden) {
     z-index: 99999 !important;
     pointer-events: auto !important;
 }
+
+
+
+/* === V14: MOBILE / TABLET / IPAD RESPONSIVE - No crash, no lag === */
+
+/* Prevent iOS zoom on input */
+input, textarea, select {
+    font-size: 16px !important;
+}
+
+/* Base: Ensure game-wrapper fills screen on all devices */
+#game-wrapper {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important; /* Dynamic viewport for mobile */
+    overflow: hidden !important;
+    touch-action: manipulation !important;
+}
+
+/* HUD responsive */
+#hud-top {
+    padding: 5px 10px !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+}
+
+#hud-bottom {
+    padding: 10px !important;
+    gap: 8px !important;
+}
+
+/* Command console - stack on mobile */
+@media (max-width: 768px) {
+    .command-console {
+        flex-direction: column !important;
+        bottom: 5px !important;
+        left: 5px !important;
+        right: 5px !important;
+        width: auto !important;
+        max-height: 40vh !important;
+        overflow-y: auto !important;
+    }
+    
+    .console-wing {
+        width: 100% !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 5px !important;
+    }
+    
+    .console-core {
+        width: 100% !important;
+        order: -1 !important;
+    }
+    
+    #player-input {
+        font-size: 18px !important;
+        height: 45px !important;
+        min-height: 45px !important;
+    }
+    
+    .tactical-btn, .trigger-btn {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        touch-action: manipulation !important;
+    }
+    
+    #virtual-numpad {
+        bottom: 50% !important;
+        transform: translateY(50%) !important;
+        right: 5px !important;
+        left: auto !important;
+        gap: 5px !important;
+    }
+    
+    .num-btn {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 20px !important;
+    }
+    
+    #side-feed {
+        display: none !important; /* Hide on mobile to save space */
+    }
+    
+    .modal-content {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        padding: 15px !important;
+        margin: 5px !important;
+    }
+    
+    #start-modal .modal-content {
+        width: 98vw !important;
+    }
+}
+
+/* Tablet / iPad (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .command-console {
+        bottom: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+    }
+    
+    .console-wing {
+        gap: 8px !important;
+    }
+    
+    .tactical-btn {
+        padding: 10px 15px !important;
+        font-size: 15px !important;
+        min-height: 44px !important;
+    }
+    
+    #virtual-numpad {
+        right: 10px !important;
+        bottom: 120px !important;
+    }
+    
+    .num-btn {
+        width: 55px !important;
+        height: 55px !important;
+    }
+    
+    #side-feed {
+        width: 200px !important;
+        font-size: 12px !important;
+    }
+}
+
+/* iPad Pro and large tablets */
+@media (min-width: 1025px) and (max-width: 1366px) {
+    .command-console {
+        max-width: 90vw !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        right: auto !important;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    #hud-top {
+        padding: 2px 5px !important;
+        font-size: 12px !important;
+    }
+    
+    #hud-bottom {
+        padding: 5px !important;
+    }
+    
+    .command-console {
+        flex-direction: row !important;
+        max-height: 35vh !important;
+        bottom: 2px !important;
+    }
+    
+    .console-wing {
+        flex-direction: column !important;
+        width: auto !important;
+    }
+    
+    #virtual-numpad {
+        bottom: 5px !important;
+        top: auto !important;
+        right: 5px !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        max-width: 180px !important;
+    }
+    
+    .modal-content {
+        max-height: 95vh !important;
+        max-height: 95dvh !important;
+    }
+}
+
+/* Prevent text selection on buttons (mobile) */
+.tactical-btn, .trigger-btn, .num-btn, .icon-btn {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Fix iOS rubber banding */
+body, html {
+    overscroll-behavior: none !important;
+    position: fixed !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#game-wrapper {
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* High DPI optimization for tablets */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    #gameCanvas, #bgCanvas {
+        image-rendering: -webkit-optimize-contrast !important;
+        image-rendering: crisp-edges !important;
+    }
+}
+
+/* Reduce motion for users who prefer it (accessibility + performance) */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    #gameCanvas {
+        will-change: auto !important;
+    }
+}
+
+/* Dark mode safe */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #000 !important;
+    }
+}
