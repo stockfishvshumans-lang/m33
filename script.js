@@ -872,11 +872,6 @@ const DOM = {
 };
 
 function updateHUD() {
-    // FIX: Throttle HUD to prevent layout thrashing
-    window._lastHUDUpdate = window._lastHUDUpdate || 0;
-    if(Date.now() - window._lastHUDUpdate < 100 && !arguments[0]) return;
-    window._lastHUDUpdate = Date.now();
-
     if (state.score !== hudCache.score) {
         // Direct modification, no DOM searching required
         if (DOM.scoreTxt) DOM.scoreTxt.textContent = state.score; 
@@ -1547,7 +1542,7 @@ if(socket) {
         } else {
             // Party Mode Fallback
             totalPlayers = Math.max(1, totalPlayers - 1); 
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({
+            state.floatingTexts.push({
                 x: window.canvas.width / 2, 
                 y: window.canvas.height / 2, 
                 text: "ALLY SIGNAL LOST. SOLO MODE ENGAGED.", 
@@ -1572,7 +1567,7 @@ if(socket) {
         if (data.targetUid === myId) {
             if (data.command === 'freeze') {
                 if (typeof triggerInputLock === "function") triggerInputLock(); // Lock the input!
-                if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2, text: "TERMINAL JAMMED BY CMDR", color: "#ff0055", life: 3.0 });
+                state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2, text: "TERMINAL JAMMED BY CMDR", color: "#ff0055", life: 3.0 });
                 if(window.Sound) window.Sound.error();
             } 
             else if (data.command === 'supply') {
@@ -1586,7 +1581,7 @@ if(socket) {
                     isSupply: true, isBoss: false, hp: 1, maxHp: 1 
                 };
                 state.meteors.push(supplyMeteor);
-                if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2 - 100, text: "INCOMING BACKUP!", color: "#ffd700", life: 3.0 });
+                state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2 - 100, text: "INCOMING BACKUP!", color: "#ffd700", life: 3.0 });
                 if(window.Sound) window.Sound.powerup();
             }
         }
@@ -2431,7 +2426,7 @@ window.beginGameplay = function() {
                     state.timeRemaining = 0; // Lock at zero
                     
                     // 🟢 FIX: TAWAGIN ANG GAMEOVER PARA LUMABAS ANG DEBRIEF SCREEN!
-                    if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2, text: "TIME UP! SECURING DATA...", color: "#ffd700", life: 3.0 });
+                    state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2, text: "TIME UP! SECURING DATA...", color: "#ffd700", life: 3.0 });
                     
                     setTimeout(() => {
                         window.gameOver(); // Trigger screen transition
@@ -2452,10 +2447,7 @@ window.beginGameplay = function() {
     if (!cityLoaded && window.generateCity) generateCity();
     if (window.initStars) initStars();
     
-    if(window.inputField) { window.inputField.value = ""; try { window.inputField.focus({preventScroll:true}); } catch { window.inputField.focus(); } // FIX: Prevent scroll jump on iOS
-        // FIX: Prevent iOS zoom - set font-size 16px
-        window.inputField.style.fontSize = '16px';
-    }
+    if(window.inputField) { window.inputField.value = ""; window.inputField.focus(); }
     if(window.updateHUD) window.updateHUD();
     
     state.lastTime = performance.now(); state.spawnTimer = performance.now();
@@ -2506,8 +2498,6 @@ window.beginGameplay = function() {
 function beginGameplay() { window.beginGameplay(); }
 
 function spawnMeteor(x, y, isBossSource) {
-    if(state.meteors.length > 30) return; // FIX: Prevent lag - max 30 meteors
-
     if (state.bossActive && !isBossSource) return;
 
     // --- BOSS SPAWN LOGIC ---
@@ -2673,7 +2663,7 @@ function breakBossShield(boss) {
     boss.shield.active = false;
     window.Sound.boom();
     createParticles(boss.x, boss.y, "cyan", 50);
-    if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: boss.x, y: boss.y, text: "SHIELD SHATTERED!", color: "#00f3ff", life: 2.0 });
+    state.floatingTexts.push({ x: boss.x, y: boss.y, text: "SHIELD SHATTERED!", color: "#00f3ff", life: 2.0 });
 }
 
 function destroyMeteor(m, idx) {
@@ -2688,7 +2678,7 @@ function destroyMeteor(m, idx) {
         if (state.nemesisList) {
             state.nemesisList = state.nemesisList.filter(item => item.q !== cleanQ);
         }
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: m.x, y: m.y - 50, text: "WEAKNESS OVERCOME!", color: "#00ff41", life: 2.0 });
+        state.floatingTexts.push({ x: m.x, y: m.y - 50, text: "WEAKNESS OVERCOME!", color: "#00ff41", life: 2.0 });
         if(window.Sound) window.Sound.speak("Weakness neutralized.");
     }
 
@@ -2744,7 +2734,7 @@ function handleMiss(val, meteorObj = null) {
         
         // Kunin yung pet info para sa pangalan
         let petInfo = window.getCurrentPet();
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({ 
+        state.floatingTexts.push({ 
             x: window.canvas.width / 2, 
             y: window.canvas.height / 2, 
             text: `🛡️ PROTECTED BY ${petInfo.name.toUpperCase()}!`, 
@@ -2821,7 +2811,7 @@ function handleBossHit(m, idx) {
         state.bossActive = false; 
         
         if (!cityLoaded && window.generateCity) generateCity();
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width / 2, y: 200, text: "TARGET NEUTRALIZED!", color: "#00ff41", life: 3.0 });
+        state.floatingTexts.push({ x: window.canvas.width / 2, y: 200, text: "TARGET NEUTRALIZED!", color: "#00ff41", life: 3.0 });
         state.shake = 50;
         
         // 🟢 NEW CAMPAIGN PROGRESSION LOGIC
@@ -2879,7 +2869,7 @@ function handleBossHit(m, idx) {
             }
             
             // Visual Cue for Critical State
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: m.x, y: m.y - 100, text: "FINISH HIM!", color: "red", life: 1.0 });
+            state.floatingTexts.push({ x: m.x, y: m.y - 100, text: "FINISH HIM!", color: "red", life: 1.0 });
 
         } else if (hpPercent < 50) {
             // ⚠️ HARD MODE (Lower than 50% HP)
@@ -2944,7 +2934,7 @@ function applyRewards() {
         
         // Optional Visual para alam ng player na gumagana yung Pet Affinity
         if (isAffinityMatch && Math.random() > 0.9) {
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2 + 100, y: window.canvas.height - 150, text: "🐾 AFFINITY BUFF!", color: "#ffd700", life: 1.0 });
+            state.floatingTexts.push({ x: window.canvas.width/2 + 100, y: window.canvas.height - 150, text: "🐾 AFFINITY BUFF!", color: "#ffd700", life: 1.0 });
         }
     }
 
@@ -2955,7 +2945,7 @@ function applyRewards() {
 
     // Visual Feedback (Paminsan-minsan ipakita ang bonus)
     if (state.coinBonus > 0 && Math.random() > 0.8) {
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({ 
+        state.floatingTexts.push({ 
             x: window.canvas.width/2 + 50, y: window.canvas.height - 100, 
             text: "BONUS COIN!", color: "gold", life: 0.5 
         });
@@ -2998,7 +2988,7 @@ window.checkLevelUp = function() {
 };
 
 function triggerLevelUpVisuals() {
-    if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2, y: 150, text: `LEVEL UP! ${state.level}`, color: "#00e5ff", life: 2.0 });
+    state.floatingTexts.push({ x: window.canvas.width/2, y: 150, text: `LEVEL UP! ${state.level}`, color: "#00e5ff", life: 2.0 });
     if (state.level % 5 === 0) { if(window.Sound) window.Sound.speak("Warning. Boss approaching."); } else { if(window.Sound) window.Sound.powerup(); }
     updateHUD(); 
 }
@@ -3040,7 +3030,7 @@ window.triggerEMP = function(isFree, fromSocket = false, isMini = false, originX
 
     if(!fromSocket) { 
         window.Sound.speak(isMini ? "Mini Nuke Detonated" : "EMP Activated"); 
-        if(state.shockwaves.length < 10) state.shockwaves.push({x: originX, y: originY, radius: 10, maxRadius: isMini ? 450 : 1500, alpha: 1.0, color: blastColor}); 
+        state.shockwaves.push({x: originX, y: originY, radius: 10, maxRadius: isMini ? 450 : 1500, alpha: 1.0, color: blastColor}); 
         state.shake = isMini ? 15 : 30; 
     }
     
@@ -3074,7 +3064,7 @@ window.triggerSlowMo = function(isFree, fromSocket = false) {
     window.Sound.powerup();
     if(!fromSocket) { 
         window.Sound.speak("Time Slowed!"); 
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({x: window.canvas.width/2, y: window.canvas.height/2 - 50, text: "SLOW MOTION", color: "#00e5ff", life: 2.0}); 
+        state.floatingTexts.push({x: window.canvas.width/2, y: window.canvas.height/2 - 50, text: "SLOW MOTION", color: "#00e5ff", life: 2.0}); 
     }
     state.isSlowed = true; 
     setTimeout(() => { 
@@ -3090,20 +3080,20 @@ window.handleSupplyCrate = function(m) {
     window.Sound.powerup(); let roll = Math.random();
     if (roll < 0.25) { 
         state.health = Math.min(100, state.health + 10); 
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({x:m.x, y:m.y, text:"HP +10", color:"#00e5ff", life:1.5}); 
+        state.floatingTexts.push({x:m.x, y:m.y, text:"HP +10", color:"#00e5ff", life:1.5}); 
     } 
     else if (roll < 0.50) { 
         state.coins += 30; 
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({x:m.x, y:m.y, text:"COINS +30", color:"#fca311", life:1.5}); 
+        state.floatingTexts.push({x:m.x, y:m.y, text:"COINS +30", color:"#fca311", life:1.5}); 
     } 
     else if (roll < 0.75) { 
         window.triggerSlowMo(true); 
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({x:m.x, y:m.y, text:"FREEZE CACHE!", color:"white", life:1.5}); 
+        state.floatingTexts.push({x:m.x, y:m.y, text:"FREEZE CACHE!", color:"white", life:1.5}); 
     } 
     else { 
         // 💥 MINI NUKE TRIGGERED (It will blast from the crate's exact location!)
         window.triggerEMP(true, false, true, m.x, m.y); 
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({x:m.x, y:m.y, text:"MINI NUKE", color:"orange", life:1.5}); 
+        state.floatingTexts.push({x:m.x, y:m.y, text:"MINI NUKE", color:"orange", life:1.5}); 
     }
     createParticles(m.x, m.y, "gold", 30);
 };
@@ -3260,7 +3250,7 @@ window.switchView = function(targetViewId) {
     }
 };
 // ==========================================
-// 👨‍🏫 TEACHER EXITS (ROUTES DIRECTLY TO GOHOME RELOAD)
+// 👨🏫 TEACHER EXITS (ROUTES DIRECTLY TO GOHOME RELOAD)
 // ==========================================
 window.closeClassEntirely = function() {
     if(window.Sound) window.Sound.click();
@@ -3375,11 +3365,7 @@ function gameVictory(reason) {
 
 
 
-function createParticles(x, y, color, count) {
-    // FIX: Limit particles to prevent lag
-    if(state.particles.length > 150) return;
-    count = Math.min(count, 30);
- 
+function createParticles(x, y, color, count) { 
     for(let i=0; i<count; i++) {
         let colors = ["#00e5ff", "#00b8cc", "#ffffff"];
         if(color === 'gold') colors = ["#fca311", "#ffc800", "#ffeb3b"]; 
@@ -3572,13 +3558,6 @@ window.triggerDamageGlitch = function() {
 
 
 function gameLoop(time) {
-    // FIX: FPS limit for mobile - skip frames if too fast
-    window._lastGameLoop = window._lastGameLoop || 0;
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const minDelta = isMobile ? 33 : 16; // 30fps mobile, 60fps desktop
-    if(time - window._lastGameLoop < minDelta) { requestAnimationFrame(gameLoop); return; }
-    window._lastGameLoop = time;
-
     if(!state.isPlaying || state.isPaused) return;
 
     if (time < window.hitStopEnd) {
@@ -3845,7 +3824,7 @@ window.handleCombo = function(isHit, x, y) {
             }
             
             if(hypeMsg !== "") { 
-                if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: x || window.canvas.width/2, y: (y || window.canvas.height/2) - 50, text: hypeMsg, color: hypeColor, life: 2.0 }); 
+                state.floatingTexts.push({ x: x || window.canvas.width/2, y: (y || window.canvas.height/2) - 50, text: hypeMsg, color: hypeColor, life: 2.0 }); 
                 state.shake = 25; 
             }
         }
@@ -3861,7 +3840,7 @@ window.handleCombo = function(isHit, x, y) {
     } else {
         // 💔 COMBO BREAKER & OVERDRIVE SHUTDOWN
         if (state.combo >= 5) { 
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2, text: "COMBO LOST", color: "#888", life: 1.5 }); 
+            state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2, text: "COMBO LOST", color: "#888", life: 1.5 }); 
             window.Sound.error(); 
         }
         
@@ -3870,7 +3849,7 @@ window.handleCombo = function(isHit, x, y) {
             document.body.classList.remove("overdrive-active");
             state.isOverdrive = false;
             window.Sound.playTone(100, 'sawtooth', 1.0); // Power down sound
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2 + 50, text: "OVERDRIVE LOST", color: "#ff0055", life: 1.5 });
+            state.floatingTexts.push({ x: window.canvas.width/2, y: window.canvas.height/2 + 50, text: "OVERDRIVE LOST", color: "#ff0055", life: 1.5 });
         }
 
         state.combo = 0; 
@@ -3946,7 +3925,7 @@ window.handleBossMechanics = function(ctx, boss, time) {
         ctx.restore();
 
         if (Math.random() > 0.92) {
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({ 
+            state.floatingTexts.push({ 
                 x: boss.x + (Math.random()-0.5)*100, 
                 y: boss.y + 200, 
                 text: "⚡ CHARGING", 
@@ -3965,7 +3944,7 @@ window.handleBossMechanics = function(ctx, boss, time) {
             // Damage Player if not shielded (auto hit for drama)
             if (state.gameMode !== 'classroom') {
                 state.health -= 5; 
-                if(state.floatingTexts.length < 20) state.floatingTexts.push({x: window.canvas.width/2, y: window.canvas.height-100, text: "-5 PLASMA BURN", color: "red", life: 2.0}); 
+                state.floatingTexts.push({x: window.canvas.width/2, y: window.canvas.height-100, text: "-5 PLASMA BURN", color: "red", life: 2.0}); 
                 updateHUD(); 
                 if(state.health <= 0) gameOver(); 
             }
@@ -3988,12 +3967,12 @@ window.handleBossMechanics = function(ctx, boss, time) {
         state.bossAttackState.firing = false; 
     }
 };
-window.showDamage = function(x, y) { let dmg = Math.floor(Math.random() * 100) + 150; if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: x, y: y, text: `-${dmg}`, color: "#fff", life: 1.0, isDamage: true }); };
+window.showDamage = function(x, y) { let dmg = Math.floor(Math.random() * 100) + 150; state.floatingTexts.push({ x: x, y: y, text: `-${dmg}`, color: "#fff", life: 1.0, isDamage: true }); };
 
 window.initBossShield = function(boss) {
     let n1 = Math.floor(Math.random() * 10) + 1; let n2 = Math.floor(Math.random() * 10) + 1;
     boss.shield = { active: true, hp: 1, q: `${n1} + ${n2}`, a: n1 + n2, maxRadius: 180 };
-    if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: boss.x, y: boss.y + 100, text: "SHIELD GENERATED!", color: "#00f3ff", life: 2.0 });
+    state.floatingTexts.push({ x: boss.x, y: boss.y + 100, text: "SHIELD GENERATED!", color: "#00f3ff", life: 2.0 });
 };
 window.drawBossShield = function(ctx, boss, time) {
     if (!boss.shield || !boss.shield.active) return;
@@ -4062,7 +4041,7 @@ window.toggleVoice = function() {
         const t = event.results[0][0].transcript.trim().toLowerCase();
         const numMap = { "zero":0, "one":1, "two":2, "to":2, "too":2, "three":3, "tree":3, "four":4, "for":4, "five":5, "six":6, "seven":7, "eight":8, "ate":8, "nine":9, "ten":10 };
         let finalVal = numMap[t] !== undefined ? numMap[t] : t;
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: window.canvas.width / 2, y: window.canvas.height - 150, text: `🎤 "${finalVal}"`, color: "#00ff41", life: 1.0 });
+        state.floatingTexts.push({ x: window.canvas.width / 2, y: window.canvas.height - 150, text: `🎤 "${finalVal}"`, color: "#00ff41", life: 1.0 });
         if (state.isPlaying && !state.isPaused) window.fireLaser(finalVal.toString());
     };
     window.recognition.onend = function() { if (window.isVoiceActive && state.isPlaying) window.recognition.start(); else { window.isVoiceActive = false; document.getElementById("mic-btn").style.color = "white"; } };
@@ -4222,7 +4201,7 @@ window.closeTraining = function() {
     }
 };
 // ==========================================
-// 👨‍🏫 TEACHER DASHBOARD LOGIC (FINAL)
+// 👨🏫 TEACHER DASHBOARD LOGIC (FINAL)
 // ==========================================
 
 let dashboardUnsub = null;
@@ -4419,7 +4398,7 @@ window.updateRosterView = function() {
 };
 
 // ==========================================
-// 👁️‍🗨️ N.E.X.U.S. SPY GRID (DECOUPLED ENGINE)
+// 👁️🗨️ N.E.X.U.S. SPY GRID (DECOUPLED ENGINE)
 // ==========================================
 window.agentTelemetry = window.agentTelemetry || {};
 
@@ -5371,10 +5350,7 @@ window.drawTurretAt = function(cx, cy, color) {
 
 
 
-window.fixGameResolution = function() {
-    if(window._resizeTimeout) clearTimeout(window._resizeTimeout);
-    window._resizeTimeout = setTimeout(() => {
- 
+window.fixGameResolution = function() { 
     if (!window.canvas) window.canvas = document.getElementById("gameCanvas");
     
     if(window.canvas) {
@@ -6114,7 +6090,7 @@ window.initBossShield = function(boss) {
         a: n1 + n2, 
         maxRadius: 180 
     };
-    if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: boss.x, y: boss.y + 100, text: "SHIELD GENERATED!", color: "#00f3ff", life: 2.0 });
+    state.floatingTexts.push({ x: boss.x, y: boss.y + 100, text: "SHIELD GENERATED!", color: "#00f3ff", life: 2.0 });
 };
 
 // --- BOSS SHIELD RENDERER ---
@@ -6240,7 +6216,7 @@ window.handleBossMechanics = function(ctx, boss, time) {
         ctx.restore();
 
         if (Math.random() > 0.95) {
-            if(state.floatingTexts.length < 20) state.floatingTexts.push({ x: boss.x + (Math.random()-0.5)*100, y: boss.y + 200, text: "⚠️ LOCKED", color: "#ff0055", life: 0.4 });
+            state.floatingTexts.push({ x: boss.x + (Math.random()-0.5)*100, y: boss.y + 200, text: "⚠️ LOCKED", color: "#ff0055", life: 0.4 });
         }
     } 
     // FIRING (Hyper Beam)
@@ -6268,7 +6244,7 @@ window.handleBossMechanics = function(ctx, boss, time) {
 
 window.showDamage = function(x, y) { 
     let dmg = Math.floor(Math.random() * 100) + 150; 
-    if(state.floatingTexts.length < 20) state.floatingTexts.push({ 
+    state.floatingTexts.push({ 
         x: x, y: y, 
         text: `-${dmg}`, 
         color: "#fff", 
@@ -6720,7 +6696,7 @@ const petCatalog = {
         { id: 'pet_l2', name: 'Cyber-Dragon', rarity: 'Legendary', class: 'Scavenger', affinity: 'All', desc: '+50% Coins. Double XP on Algebra.', icon: '🐉' }
     ],
     mythic: [
-        { id: 'pet_m1', name: 'VOID LEVIATHAN', rarity: 'Mythic', class: 'God', affinity: 'All', desc: 'Auto-destroys 1 enemy every 5 secs. +100% Score.', icon: '👁️‍🗨️' },
+        { id: 'pet_m1', name: 'VOID LEVIATHAN', rarity: 'Mythic', class: 'God', affinity: 'All', desc: 'Auto-destroys 1 enemy every 5 secs. +100% Score.', icon: '👁️🗨️' },
         { id: 'pet_m2', name: 'GLITCH ENTITY', rarity: 'Mythic', class: 'God', affinity: 'All', desc: 'Hacks the system. Immortal Combo Shield.', icon: '👾' }
     ]
 };
@@ -10773,7 +10749,7 @@ window.petAutoFire = function() {
         });
 
         // Floating Text Combo Hype
-        if(state.floatingTexts.length < 20) state.floatingTexts.push({ 
+        state.floatingTexts.push({ 
             x: target.x, y: target.y - 60, 
             text: `🔥 ${myPet.name.toUpperCase()} STRIKE!`, 
             color: pColor, life: 2.0 
@@ -11854,410 +11830,3 @@ window.joinCustomQuiz = async function() {
         alert("Connection error.");
     }
 };
-
-// === FIX: No crash, no lag, mobile handling ===
-document.addEventListener('visibilitychange', () => {
-    if(document.hidden && state.isPlaying && !state.isPaused) {
-        if(window.pauseGame) window.pauseGame();
-        console.log('Tab hidden - auto paused to prevent lag');
-    }
-});
-
-// Fix: Handle orientation change on mobile/tablet
-window.addEventListener('orientationchange', () => {
-    setTimeout(() => {
-        if(window.fixGameResolution) window.fixGameResolution();
-    }, 500);
-});
-
-// Fix: Prevent double-tap zoom on iOS for buttons
-document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    const DOUBLE_TAP_THRESHOLD = 300;
-    if(window._lastTouchEnd && now - window._lastTouchEnd < DOUBLE_TAP_THRESHOLD) {
-        e.preventDefault();
-    }
-    window._lastTouchEnd = now;
-}, {passive: false});
-
-// Fix: Object pooling for particles to prevent GC lag
-window._particlePool = window._particlePool || [];
-window.getPooledParticle = function() {
-    return window._particlePool.pop() || {};
-};
-window.releaseParticle = function(p) {
-    if(window._particlePool.length < 200) window._particlePool.push(p);
-};
-
-// Fix: Limit concurrent audio to prevent lag
-if(window.Sound) {
-    const originalPlay = window.Sound.playTone;
-    window.Sound._activeTones = 0;
-    window.Sound.playTone = function() {
-        if(window.Sound._activeTones > 5) return;
-        window.Sound._activeTones++;
-        try { originalPlay.apply(this, arguments); } catch(e){}
-        setTimeout(() => { window.Sound._activeTones--; }, 200);
-    };
-}
-
-
-
-// === UNIFIED LOGIC: Laptop -> Phone/Mobile + Socket.IO Integration ===
-
-// 1. AUTO GADGET DETECTION BY SCREEN SIZE (Fixes buggy system)
-window.GadgetDetector = {
-  _lastGadget: null,
-  _listeners: [],
-  
-  detect() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const ua = navigator.userAgent;
-    const isIOS = /iPad|iPhone|iPod/.test(ua);
-    const isIPad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    
-    let gadget, experience;
-    
-    if (w < 375) {
-      gadget = 'mobile-small';
-      experience = 'compact-phone';
-    } else if (w <= 428) {
-      gadget = 'mobile'; // YOUR EXACT IMAGE VIEW - 390x844
-      experience = 'phone-optimized';
-    } else if (w <= 768) {
-      gadget = 'mobile-large';
-      experience = 'large-phone';
-    } else if (w <= 1024) {
-      gadget = 'tablet'; // iPad portrait
-      experience = 'tablet-portrait';
-    } else if (w <= 1366) {
-      gadget = 'ipad-pro'; // iPad landscape / Pro
-      experience = 'tablet-landscape';
-    } else {
-      gadget = 'desktop';
-      experience = 'desktop-full';
-    }
-    
-    return {
-      gadget,
-      experience,
-      width: w,
-      height: h,
-      dpr,
-      touch,
-      isIOS,
-      isIPad,
-      orientation: w > h ? 'landscape' : 'portrait',
-      userAgent: ua
-    };
-  },
-  
-  init() {
-    const update = () => {
-      const info = this.detect();
-      if (JSON.stringify(info) !== JSON.stringify(this._lastGadget)) {
-        this._lastGadget = info;
-        document.body.setAttribute('data-gadget', info.gadget);
-        document.body.setAttribute('data-experience', info.experience);
-        document.body.setAttribute('data-orientation', info.orientation);
-        
-        // Update debug badge if exists
-        const badge = document.getElementById('gadget-debug');
-        if (badge) {
-          badge.textContent = `Detected: ${info.gadget.toUpperCase()} ${info.width}x${info.height} DPR${info.dpr} ${info.touch ? 'TOUCH' : 'MOUSE'} ${info.orientation.toUpperCase()}`;
-        }
-        
-        // Trigger fixGameResolution
-        if (window.fixGameResolution) {
-          try { window.fixGameResolution(); } catch(e){}
-        }
-        
-        // Notify listeners
-        this._listeners.forEach(fn => {
-          try { fn(info); } catch(e){}
-        });
-        
-        console.log(`[M3SH] Gadget detected:`, info);
-      }
-    };
-    
-    // Initial detect
-    update();
-    
-    // Debounced resize
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(update, 100);
-    });
-    
-    // Orientation change (500ms delay for iOS)
-    window.addEventListener('orientationchange', () => {
-      setTimeout(update, 500);
-    });
-    
-    // Visual viewport for iOS keyboard
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(update, 100);
-      });
-    }
-    
-    return this;
-  },
-  
-  onChange(fn) {
-    this._listeners.push(fn);
-  }
-};
-
-// Initialize gadget detection
-window.GadgetDetector.init();
-
-// 2. SOCKET.IO INTEGRATION - Uses laptop logic for mobile
-window.M3SHSocket = {
-  socket: null,
-  isConnected: false,
-  serverUrl: null,
-  
-  init() {
-    // Detect server URL - localhost for dev, production for GitHub Pages
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const isGitHubPages = window.location.hostname.includes('github.io');
-    
-    if (isLocalhost) {
-      this.serverUrl = 'http://localhost:3001';
-    } else if (isGitHubPages) {
-      // For GitHub Pages, try to connect to deployed backend or use Firebase fallback
-      // User should deploy backend to Render/Railway/Fly.io and set URL here
-      this.serverUrl = localStorage.getItem('m3sh_server_url') || 'https://your-m3sh-server.onrender.com';
-      console.log('[M3SH] GitHub Pages detected, using server:', this.serverUrl);
-    } else {
-      this.serverUrl = window.location.origin;
-    }
-    
-    // Only try Socket.IO if not on GitHub Pages without backend URL
-    if (isGitHubPages && !localStorage.getItem('m3sh_server_url')) {
-      console.log('[M3SH] GitHub Pages without backend - using FirebaseTransport fallback (existing logic)');
-      this.setupFirebaseFallback();
-      return;
-    }
-    
-    try {
-      // Import socket.io-client dynamically (will be loaded via CDN in HTML)
-      if (typeof io !== 'undefined') {
-        this.socket = io(this.serverUrl, {
-          transports: ['websocket', 'polling'],
-          timeout: 5000
-        });
-        
-        this.setupListeners();
-        console.log(`[M3SH] Socket.IO connecting to ${this.serverUrl}`);
-      } else {
-        console.log('[M3SH] socket.io-client not loaded, using Firebase fallback');
-        this.setupFirebaseFallback();
-      }
-    } catch (e) {
-      console.error('[M3SH] Socket.IO init failed, using fallback:', e);
-      this.setupFirebaseFallback();
-    }
-  },
-  
-  setupListeners() {
-    if (!this.socket) return;
-    
-    this.socket.on('connect', () => {
-      this.isConnected = true;
-      console.log(`[M3SH] Socket connected: ${this.socket.id}`);
-      const status = document.getElementById('socket-status');
-      if (status) {
-        status.textContent = 'ONLINE';
-        status.style.color = '#00ff41';
-      }
-    });
-    
-    this.socket.on('disconnect', () => {
-      this.isConnected = false;
-      console.log('[M3SH] Socket disconnected');
-      const status = document.getElementById('socket-status');
-      if (status) {
-        status.textContent = 'OFFLINE - Firebase fallback';
-        status.style.color = '#ffaa00';
-      }
-    });
-    
-    this.socket.on('connect_error', (err) => {
-      console.log('[M3SH] Socket connect_error, switching to Firebase fallback:', err.message);
-      this.setupFirebaseFallback();
-    });
-    
-    // Game events - SAME LOGIC AS LAPTOP VIEW, works on mobile too
-    this.socket.on('room_updated', (room) => {
-      console.log('[M3SH] Room updated:', room);
-      if (window.updateLobbyUI) window.updateLobbyUI(room);
-    });
-    
-    this.socket.on('receive_vs_state', ({ playerId, state }) => {
-      // Same logic as laptop - update opponent meteors
-      if (state.gameMode === 'vs' || state.gameMode === 'party') {
-        state.opponentState = state;
-        if (window.handleOpponentState) window.handleOpponentState(state);
-      }
-    });
-    
-    this.socket.on('opponent_died', ({ playerId }) => {
-      if (window.gameVictory) window.gameVictory('OPPONENT ELIMINATED');
-    });
-    
-    this.socket.on('sync_skill', ({ playerId, type, isMini, x, y }) => {
-      if (type === 'EMP' && window.triggerEMP) window.triggerEMP(true, true, isMini, x, y);
-      if (type === 'SLOW' && window.triggerSlowMo) window.triggerSlowMo(true, true);
-    });
-    
-    this.socket.on('player_joined', ({ playerId, playerName }) => {
-      console.log(`[M3SH] Player joined: ${playerName}`);
-      if (window.Sound) window.Sound.powerup();
-    });
-  },
-  
-  setupFirebaseFallback() {
-    // Use existing FirebaseTransport logic from laptop view
-    console.log('[M3SH] Using FirebaseTransport fallback (works on GitHub Pages)');
-    this.isConnected = false;
-    // Existing Firebase code in script.js will handle multiplayer via Firestore
-    // This is the same logic that laptop view uses
-  },
-  
-  // Unified emit that works for both Socket.IO and Firebase
-  emit(event, data) {
-    // Same function for laptop and mobile - no duplicate logic
-    if (this.socket && this.isConnected) {
-      this.socket.emit(event, data);
-    } else {
-      // Fallback to FirebaseTransport (existing laptop logic)
-      if (window.firebaseTransport) {
-        try {
-          // Map socket events to Firebase events
-          if (event === 'send_vs_state') {
-            window.firebaseTransport.sendVSState(data.room, data.state);
-          } else if (event === 'player_died') {
-            window.firebaseTransport.sendPlayerDied(data.room);
-          } else if (event === 'use_skill') {
-            window.firebaseTransport.sendSkill(data.room, data.type, data.isMini, data.x, data.y);
-          }
-        } catch(e) {
-          console.log('[M3SH] Firebase fallback emit failed:', e);
-        }
-      }
-    }
-  },
-  
-  // Helper to create/join room - same for laptop and mobile
-  createRoom(roomId, playerName) {
-    if (this.socket && this.isConnected) {
-      this.socket.emit('create_room', { roomId, playerName, isHost: true });
-    } else {
-      // Firebase fallback - same logic as laptop
-      if (window.createRoomFirebase) window.createRoomFirebase(roomId, playerName);
-    }
-  },
-  
-  joinRoom(roomId, playerName) {
-    if (this.socket && this.isConnected) {
-      this.socket.emit('join_room', { roomId, playerName });
-    } else {
-      if (window.joinRoomFirebase) window.joinRoomFirebase(roomId, playerName);
-    }
-  }
-};
-
-// Initialize socket after page load
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    if (window.M3SHSocket) window.M3SHSocket.init();
-  }, 1000);
-});
-
-// 3. UNIFIED INPUT LOGIC - Laptop keyboard + Mobile numpad use same function
-// This is the key: mobile uses same pressKey, pressEnter, handleAnswer as laptop
-window.unifiedInput = {
-  buffer: '',
-  
-  pressKey(key) {
-    // Same logic for laptop and mobile - no duplicate
-    if (key === 'BACKSPACE') {
-      this.buffer = this.buffer.slice(0, -1);
-    } else if (key === 'CLEAR') {
-      this.buffer = '';
-    } else if (/^[0-9\-]$/.test(key)) {
-      // Prevent multiple minus signs
-      if (key === '-' && this.buffer.includes('-')) return;
-      if (key === '-' && this.buffer.length > 0) return;
-      this.buffer += key;
-    }
-    
-    // Update both desktop and mobile inputs - same logic
-    const input = document.getElementById('player-input');
-    const mobileDisplay = document.getElementById('answer-display');
-    const desktopDisplay = document.getElementById('answer-input-display');
-    
-    if (input) input.value = this.buffer;
-    if (mobileDisplay) mobileDisplay.textContent = this.buffer || '0';
-    if (desktopDisplay) desktopDisplay.textContent = this.buffer || '0';
-  },
-  
-  submit() {
-    // Same submit logic for laptop and mobile
-    const value = this.buffer;
-    if (!value || value === '-' ) return;
-    
-    if (window.handleAnswer) {
-      window.handleAnswer(value);
-    } else if (window.pressEnter) {
-      window.pressEnter();
-    }
-    
-    this.buffer = '';
-    const input = document.getElementById('player-input');
-    if (input) input.value = '';
-    const displays = document.querySelectorAll('#answer-display, #answer-input-display');
-    displays.forEach(d => { if(d) d.textContent = '0'; });
-  },
-  
-  clear() {
-    this.buffer = '';
-    const input = document.getElementById('player-input');
-    if (input) input.value = '';
-    const displays = document.querySelectorAll('#answer-display, #answer-input-display');
-    displays.forEach(d => { if(d) d.textContent = '0'; });
-  }
-};
-
-// Override existing pressKey/pressEnter to use unified logic
-const originalPressKey = window.pressKey;
-window.pressKey = function(key) {
-  if (window.unifiedInput) {
-    window.unifiedInput.pressKey(key);
-  }
-  if (originalPressKey) {
-    try { originalPressKey(key); } catch(e){}
-  }
-};
-
-const originalPressEnter = window.pressEnter;
-window.pressEnter = function() {
-  const input = document.getElementById('player-input');
-  const value = input ? input.value : window.unifiedInput.buffer;
-  if (window.handleAnswer) window.handleAnswer(value);
-  if (originalPressEnter) {
-    try { originalPressEnter(); } catch(e){}
-  }
-  if (window.unifiedInput) window.unifiedInput.clear();
-};
-
-console.log('[M3SH] Unified logic loaded - Laptop logic now works on Mobile + Socket.IO integrated');
-console.log('[M3SH] Gadget detection:', window.GadgetDetector.detect());

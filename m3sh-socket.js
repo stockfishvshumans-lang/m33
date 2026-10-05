@@ -1,0 +1,1 @@
+window.M3SHSocket={serverUrl:'https://m33sh.onrender.com',init(){if(typeof io!=='undefined'){this.socket=io(this.serverUrl,{transports:['websocket','polling']});this.socket.on('connect',()=>{document.getElementById('socket-status').textContent='ONLINE - Render';});}}};addEventListener('load',()=>setTimeout(()=>window.M3SHSocket.init(),1500));

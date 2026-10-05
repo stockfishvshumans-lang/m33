@@ -32,115 +32,9 @@
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-
-<style id="exact-phone-view">
-/* EXACT PHONE VIEW FROM IMAGE - Auto Gadget Detect */
-[data-gadget="mobile"] #game-wrapper,
-[data-gadget="mobile-small"] #game-wrapper {
-    /* Exact phone view like image */
-}
-
-#gadget-debug {
-    position: fixed;
-    top: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.8);
-    color: #00e5ff;
-    padding: 2px 8px;
-    font-size: 10px;
-    font-family: monospace;
-    border: 1px solid #00e5ff;
-    z-index: 100000;
-    pointer-events: none;
-}
-
-#socket-status {
-    position: fixed;
-    top: 2px;
-    right: 5px;
-    background: rgba(0,0,0,0.8);
-    color: #ffaa00;
-    padding: 2px 6px;
-    font-size: 9px;
-    font-family: monospace;
-    border: 1px solid #ffaa00;
-    z-index: 100000;
-    pointer-events: none;
-}
-
-/* Exact phone view HUD - matches image */
-.phone-hud {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,229,255,0.1) 100%);
-    border: 2px solid #00e5ff;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    clip-path: polygon(0 0, 100% 0, 100% 75%, 95% 100%, 5% 100%, 0 75%);
-    z-index: 100;
-    padding: 8px 15px;
-}
-
-[data-gadget="mobile"] .phone-hud,
-[data-gadget="mobile-small"] .phone-hud {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.phone-hud-heart {
-    color: #00e5ff;
-    font-size: 20px;
-}
-
-.phone-hud-m3sh {
-    font-size: 32px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px #00e5ff;
-}
-
-.phone-hud-m3sh .m { color: #00e5ff; }
-.phone-hud-m3sh .three { color: #ff8c00; }
-.phone-hud-m3sh .sh { color: #00e5ff; }
-
-.phone-hud-score {
-    color: #ff8c00;
-    text-align: right;
-    font-size: 14px;
-}
-
-.phone-health-bar {
-    position: absolute;
-    bottom: 5px;
-    left: 15px;
-    right: 15px;
-    height: 12px;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid #00e5ff;
-    display: flex;
-    gap: 2px;
-    padding: 2px;
-}
-
-.phone-health-segment {
-    flex: 1;
-    background: #00e5ff;
-    box-shadow: 0 0 5px #00e5ff;
-}
-</style>
-
 </head>
 
     <body>
-    <div id="gadget-debug">Detecting gadget...</div>
-    <div id="socket-status">SOCKET: Checking...</div>
 
 
 
@@ -3087,6 +2981,8 @@
 
         <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script src="./audio.js"></script>
+    <script src="./gadget-detector.js"></script>
+    <script src="./m3sh-socket.js"></script>
     <script src="./tactical-solver.js"></script>
     <script type="module" src="./script.js"></script>
 
